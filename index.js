@@ -1,7 +1,10 @@
 // TODO: Include packages needed for this application
 const fs = require('fs');
 const inquirer = require('inquirer');
+const util = require('util')
 const generateMarkdown = require('./utils/generateMarkdown');
+const licenseBadge = require('./utils/licenseBadge').licenseBadge
+const writeFileAsync = (fs.writeFileSync);
 
 // TODO: Create an array of questions for user input
 const questions = [
@@ -23,6 +26,11 @@ const questions = [
   {
     type: 'input',
     message: 'Write a brief description of your project.',
+    name: 'description',
+  },
+  {
+    type: 'input',
+    message: 'Tell us about your project:',
     name: 'description',
   },
   {
@@ -53,11 +61,15 @@ const questions = [
 function writeToFile(fileName, data) {}
 
 // TODO: Create a function to initialize app
-function init() {
-  inquirer.prompt(questions)
-    .then(response => {
-      console.log(response)
-    })
+async function init() {
+  try {
+    const answers = await inquirer.prompt(questions);
+    answers.licenseBadge = licenseBadge(answers.license);
+    let readMeData = generateMarkdown(answers);
+    await writeFileAsync("created-README.md", readMeData);
+  } catch (err) {
+    throw err;
+  }
 }
 
 // Function call to initialize app
